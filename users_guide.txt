@@ -1,0 +1,112 @@
+				USER'S GUIDE 
+	(By T.I. Toth, Cardiff University, U.K.; 1996-2002)
+
+to software estimating activation and kinetic properties of INa and IK of
+the action potential from current-clamp records. Please note that
+
+# THIS SOFTWARE COMES WITH NO WARRANTY WHATSOEVER, EXPRESSED OR IMPLIED. 
+# USE IT AT YOUR OWN RISK!
+
+
+
+1. Prepare 2 types of data files both having the structure of `burst' data
+as described in the programmes in_estim2*.m from the *same* neurone.
+1.1 `Burst' type data with hyperpolarising input currents to be used by
+the programmes in_estim2*.m
+1.2 `Burst' type data with action potentials evoked by depolarising input
+     currents to be used by the programmes in_estim4*.m.
+Ensure in both cases that the file starts before the stimulus; is long enough,
+typically a few hundred ms; and has a high enough resolution (small sampling
+time Delta_t<=0.033 ms for traces containing action potentials; larger 
+Delta_t are allowed for the hyperpolarising stimuli). 
+Also collect all input data (e.g. activation and kinetic parameter values 
+for the known currents, rev. pot.s etc.) that are required for the input of 
+the programmes to be used, and load them before using the analysis programmes 
+or their driver scripts.
+
+2. Estimate the total membrane capacitance and the maximal conductances of
+the a priori known currents, as well as the rev. pot. EL of the leakage current.
+To this end use the programmes in_estim2*.m, or rather their driver scripts 
+to obtain the estimates for the parameters above from each trace of the data
+set. Select the appropriate variant depending on what currents are regarded 
+to be present and activated by the hyperpolarising stimuli. 
+	You can select the "best" set of estimates in several ways using a
+neurone model to simulate the current-clamp records. One is to take each 
+indiviual set of estimates and to find the one which requires minimal overall
+adjustments in the input and holding current in the simulations throughout
+the whole spectrum of the stimuli. Another criterion could be the smallest 
+cumulative least square error of the simulated fits over all traces when
+applying the experimental stimuli to the model.
+
+3. Compute the current ci0=INa+IK with the "best" set of estimates by using
+in_estim4bc.m. This procedure also computes hNa(t), the time evolution of the
+inactivation var. of INa; the resting membrane potential Er (at which Ihold
+should be zero - an experimental condition), and the current stimulus 
+ci2. In addition, the time course of the currents IA and IT is also computed.
+However, the order of the Chebyshev approximation should be chosen carefully.
+A too low order (value of mch) yields grossly inaccurate results, while a too
+high order intorduces numerical instabilities manifested in oscillations.
+Experinece has showed that the order chosen is acceptable if the maximal
+absolute error of the approximation of V(t) is <0.6 mV; and a further 
+increase of the approximation order does not improve the goodness of the 
+fit significantly. Also, the ci0 curves obtained with 2 consecutive mch
+values should only differ slightly. 
+N.B. In some cases, either even or odd orders yield numerically unstable results
+with oscillations. In these cases, only odd and even orders of approximations
+should be used, respectively.
+
+4. Calculate first estimates of the parameters of INa current in terms of 
+the alpha-beta-type description using in_estim5c.m. The parameters estimated
+are listed in this programme. Check the quality of the estimates by
+graphically displaying the raw values of alpha_mNa(V) and beta_mNa(V) 
+((1+lambda)*alpNa0, lambda*betNa0) obtained from the initial segment of
+ci0, where ci0 approximately equals INa, and the estimated ones (alpNae, 
+betNae). Also display ci0 and the reconstructed INa as another test of the
+estimation. Save the results and all other parameters used in a file.
+
+5. Calculate the estimates of the parameters of IK (tc_estim6a.m) and INa
+(tc_estim7df.m) for a series of mKmx=max(mK) values, where mK=mK(t) is the
+time course of the activation variable of IK. To this end, use the programme
+script script_6a_7df.m. Edit this script to enter the correct file name for
+the file created in the preceding step (e.g. input_data.dat), and for the new
+one containing the estimation results (e.g. new_estimation.res). 
+
+6. Choose the parameter set with the minimal error. Save the results and 
+other parameter values in a new file. Fix the value of mKmx corresponding
+to the minimal error and re-run script_6a7df.m with this new file loaded 
+and with disabled the while loop (comment it out), that is, run tc_estim6a.m 
+and tc_estim7df.m only once each. If the error of the estimation decreased, 
+accept the new set of parameter values for IK and INa, and repeat this 
+procedure until the error starts increasing rapidly. (This might happen 
+already in the first `round'.) Note that you can stop after running only
+tc_estim6a.m and regard the parameter set obtained as `optimal', if the 
+error produced by tc_estim6a.m is smaller than before but the subsequent error 
+produced by tc_estim7df.m is much larger than that of tc_estim6a.m. 
+
+7. Check the quality of the estimated values by comparing ci0 with the 
+reconstructed INa+IK, or comparing ci0-IK with INa, or ci0-INa with IK. 
+Moreover, it is a good idea to visualise the steady-state activation curves 
+and the voltage dependence of the kinetics of both INa and IK. (See output 
+of tc_estim6a.m and tc_estim7df.m.) 
+If these checks look all right, use the parameter set obtained in a neurone
+model to reproduce the action potential. Make small adjustments, if necessary,
+during the simulations.
+
+8. Other types of description of the activation and kinetics of IK and INa
+can be used by modifying the programmes tc_estim6a.m, fm2.m, tc_estim7df.m,
+fm2df.m, and the programme script script_6a7df.m.
+
+
+
+9. References
+
+    J.W. Eaton. (1995). Octave Manual. Online: www.che.wisc.edu/octave
+
+    D. Fox, I.B. Parker. Chebyshev Polynomials in Numerical Analysis.
+    London: Oxford University Press, 1968. 
+
+    T.I. Tóth, V. Crunelli: Estimation the activation and kinetic 
+    properties of INa and IK from the time course of the action
+    potential. J. Neurosci. Meth. 111: 111-126 (2001).
+
+
